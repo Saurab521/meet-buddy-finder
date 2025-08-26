@@ -10,6 +10,7 @@ const mockRooms: MeetingRoom[] = [
     capacity: 8,
     location: 'Ground Floor',
     isAvailable: false,
+    hasTV: true,
     currentBooking: {
       id: 'booking-001',
       roomId: 'turf-001',
@@ -29,56 +30,64 @@ const mockRooms: MeetingRoom[] = [
     name: 'Turf 002',
     capacity: 12,
     location: 'Ground Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: true
   },
   {
     id: 'turf-003',
     name: 'Turf 003',
     capacity: 9,
     location: 'Ground Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: true
   },
   {
     id: 'turf-004',
     name: 'Turf 004',
     capacity: 9,
     location: 'Ground Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: true
   },
   {
     id: 'turf-005',
     name: 'Turf 005',
     capacity: 7,
     location: 'Ground Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: true
   },
   {
     id: 'turf-006',
     name: 'Turf 006',
     capacity: 7,
     location: 'Ground Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: true
   },
   {
     id: 'turf-007',
     name: 'Turf 007',
     capacity: 4,
     location: 'Ground Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: false
   },
   {
     id: 'turf-008',
     name: 'Turf 008',
     capacity: 4,
     location: 'Ground Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: false
   },
   {
     id: 'turf-009',
     name: 'Turf 009',
     capacity: 7,
     location: 'Ground Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: true
   },
   // First Floor Rooms
   {
@@ -86,7 +95,8 @@ const mockRooms: MeetingRoom[] = [
     name: 'Turf 101',
     capacity: 7,
     location: 'First Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: true
   },
   {
     id: 'turf-102',
@@ -94,6 +104,7 @@ const mockRooms: MeetingRoom[] = [
     capacity: 7,
     location: 'First Floor',
     isAvailable: false,
+    hasTV: true,
     currentBooking: {
       id: 'booking-002',
       roomId: 'turf-102',
@@ -112,49 +123,56 @@ const mockRooms: MeetingRoom[] = [
     name: 'Turf 103',
     capacity: 9,
     location: 'First Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: true
   },
   {
     id: 'turf-104',
     name: 'Turf 104',
     capacity: 7,
     location: 'First Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: true
   },
   {
     id: 'turf-105',
     name: 'Turf 105',
     capacity: 5,
     location: 'First Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: false
   },
   {
     id: 'turf-106',
     name: 'Turf 106',
     capacity: 4,
     location: 'First Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: false
   },
   {
     id: 'turf-107',
     name: 'Turf 107',
     capacity: 4,
     location: 'First Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: false
   },
   {
     id: 'turf-108',
     name: 'Turf 108',
     capacity: 4,
     location: 'First Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: false
   },
   {
     id: 'turf-109',
     name: 'Turf 109',
     capacity: 5,
     location: 'First Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: true
   },
   // Conference Room
   {
@@ -163,6 +181,7 @@ const mockRooms: MeetingRoom[] = [
     capacity: 10,
     location: 'Conference Room',
     isAvailable: true,
+    hasTV: true,
     nextBooking: {
       id: 'booking-003',
       roomId: 'the-eyrie',
@@ -182,14 +201,16 @@ const mockRooms: MeetingRoom[] = [
     name: 'Turf 201',
     capacity: 8,
     location: 'Second Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: true
   },
   {
     id: 'training-room',
     name: 'Training Room',
     capacity: 20,
     location: 'Second Floor',
-    isAvailable: true
+    isAvailable: true,
+    hasTV: true
   }
 ];
 

@@ -4,6 +4,7 @@ export interface MeetingRoom {
   capacity: number;
   location: string;
   isAvailable: boolean;
+  hasTV: boolean;
   currentBooking?: Booking;
   nextBooking?: Booking;
 }

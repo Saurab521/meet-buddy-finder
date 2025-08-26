@@ -1,4 +1,4 @@
-import { Clock, Users, MapPin } from "lucide-react";
+import { Clock, Users, MapPin, Monitor, MonitorX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +36,7 @@ export const RoomCard = ({ room, onBook }: RoomCardProps) => {
       </CardHeader>
       
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
           <div className="flex items-center gap-1">
             <Users className="h-4 w-4" />
             <span>{room.capacity} seats</span>
@@ -44,6 +44,19 @@ export const RoomCard = ({ room, onBook }: RoomCardProps) => {
           <div className="flex items-center gap-1">
             <MapPin className="h-4 w-4" />
             <span>{room.location}</span>
+          </div>
+          <div className={`flex items-center gap-1 ${room.hasTV ? 'text-green-600' : 'text-gray-400'}`}>
+            {room.hasTV ? (
+              <>
+                <Monitor className="h-4 w-4" />
+                <span>TV Available</span>
+              </>
+            ) : (
+              <>
+                <MonitorX className="h-4 w-4" />
+                <span>No TV</span>
+              </>
+            )}
           </div>
         </div>
 
