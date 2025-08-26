@@ -1,59 +1,174 @@
 import { useState, useEffect } from 'react';
 import { MeetingRoom, Booking } from '@/types/meeting';
 
-// Mock data - in real app this would come from API
+// Baaz Bike Company Meeting Rooms
 const mockRooms: MeetingRoom[] = [
+  // Ground Floor Rooms
   {
-    id: 'room-001',
-    name: 'Conference Room A',
+    id: 'turf-001',
+    name: 'Turf 001',
     capacity: 8,
-    location: 'Floor 1, East Wing',
+    location: 'Ground Floor',
     isAvailable: false,
     currentBooking: {
       id: 'booking-001',
-      roomId: 'room-001',
-      title: 'Product Strategy Meeting',
+      roomId: 'turf-001',
+      title: 'Sales Team Meeting',
       organizer: 'Rahul Sharma',
-      organizerEmail: 'rahul.sharma@company.com',
-      department: 'Product',
+      organizerEmail: 'rahul.sharma@baazbike.com',
+      department: 'Sales',
       startTime: new Date(new Date().setHours(10, 0, 0, 0)),
       endTime: new Date(new Date().setHours(11, 30, 0, 0)),
       attendees: 6,
-      description: 'Q4 product roadmap discussion',
+      description: 'Monthly sales review',
       isActive: true
-    },
-    nextBooking: {
-      id: 'booking-002',
-      roomId: 'room-001',
-      title: 'Team Standup',
-      organizer: 'Priya Patel',
-      organizerEmail: 'priya.patel@company.com',
-      department: 'Engineering',
-      startTime: new Date(new Date().setHours(14, 0, 0, 0)),
-      endTime: new Date(new Date().setHours(14, 30, 0, 0)),
-      attendees: 5,
-      isActive: false
     }
   },
   {
-    id: 'room-002',
-    name: 'Meeting Room B',
-    capacity: 4,
-    location: 'Floor 2, West Wing',
+    id: 'turf-002',
+    name: 'Turf 002',
+    capacity: 12,
+    location: 'Ground Floor',
     isAvailable: true
   },
   {
-    id: 'room-003',
-    name: 'Executive Boardroom',
-    capacity: 12,
-    location: 'Floor 3, Center',
+    id: 'turf-003',
+    name: 'Turf 003',
+    capacity: 9,
+    location: 'Ground Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-004',
+    name: 'Turf 004',
+    capacity: 9,
+    location: 'Ground Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-005',
+    name: 'Turf 005',
+    capacity: 7,
+    location: 'Ground Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-006',
+    name: 'Turf 006',
+    capacity: 7,
+    location: 'Ground Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-007',
+    name: 'Turf 007',
+    capacity: 4,
+    location: 'Ground Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-008',
+    name: 'Turf 008',
+    capacity: 4,
+    location: 'Ground Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-009',
+    name: 'Turf 009',
+    capacity: 7,
+    location: 'Ground Floor',
+    isAvailable: true
+  },
+  // First Floor Rooms
+  {
+    id: 'turf-101',
+    name: 'Turf 101',
+    capacity: 7,
+    location: 'First Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-102',
+    name: 'Turf 102',
+    capacity: 7,
+    location: 'First Floor',
+    isAvailable: false,
+    currentBooking: {
+      id: 'booking-002',
+      roomId: 'turf-102',
+      title: 'Product Review',
+      organizer: 'Priya Patel',
+      organizerEmail: 'priya.patel@baazbike.com',
+      department: 'Product',
+      startTime: new Date(new Date().setHours(14, 0, 0, 0)),
+      endTime: new Date(new Date().setHours(15, 0, 0, 0)),
+      attendees: 5,
+      isActive: true
+    }
+  },
+  {
+    id: 'turf-103',
+    name: 'Turf 103',
+    capacity: 9,
+    location: 'First Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-104',
+    name: 'Turf 104',
+    capacity: 7,
+    location: 'First Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-105',
+    name: 'Turf 105',
+    capacity: 5,
+    location: 'First Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-106',
+    name: 'Turf 106',
+    capacity: 4,
+    location: 'First Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-107',
+    name: 'Turf 107',
+    capacity: 4,
+    location: 'First Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-108',
+    name: 'Turf 108',
+    capacity: 4,
+    location: 'First Floor',
+    isAvailable: true
+  },
+  {
+    id: 'turf-109',
+    name: 'Turf 109',
+    capacity: 5,
+    location: 'First Floor',
+    isAvailable: true
+  },
+  // Conference Room
+  {
+    id: 'the-eyrie',
+    name: 'The Eyrie',
+    capacity: 10,
+    location: 'Conference Room',
     isAvailable: true,
     nextBooking: {
       id: 'booking-003',
-      roomId: 'room-003',
+      roomId: 'the-eyrie',
       title: 'Board Meeting',
       organizer: 'Amit Singh',
-      organizerEmail: 'amit.singh@company.com',
+      organizerEmail: 'amit.singh@baazbike.com',
       department: 'Executive',
       startTime: new Date(new Date().setHours(16, 0, 0, 0)),
       endTime: new Date(new Date().setHours(18, 0, 0, 0)),
@@ -61,37 +176,19 @@ const mockRooms: MeetingRoom[] = [
       isActive: false
     }
   },
+  // Second Floor Rooms
   {
-    id: 'room-004',
-    name: 'Training Room',
-    capacity: 20,
-    location: 'Floor 1, West Wing',
+    id: 'turf-201',
+    name: 'Turf 201',
+    capacity: 8,
+    location: 'Second Floor',
     isAvailable: true
   },
   {
-    id: 'room-005',
-    name: 'Focus Pod 1',
-    capacity: 2,
-    location: 'Floor 2, East Wing',
-    isAvailable: false,
-    currentBooking: {
-      id: 'booking-004',
-      roomId: 'room-005',
-      title: 'Client Call',
-      organizer: 'Neha Gupta',
-      organizerEmail: 'neha.gupta@company.com',
-      department: 'Sales',
-      startTime: new Date(new Date().setHours(11, 0, 0, 0)),
-      endTime: new Date(new Date().setHours(12, 0, 0, 0)),
-      attendees: 2,
-      isActive: true
-    }
-  },
-  {
-    id: 'room-006',
-    name: 'Creative Studio',
-    capacity: 6,
-    location: 'Floor 3, East Wing',
+    id: 'training-room',
+    name: 'Training Room',
+    capacity: 20,
+    location: 'Second Floor',
     isAvailable: true
   }
 ];
