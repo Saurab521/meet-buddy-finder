@@ -1,22 +1,28 @@
 import { useState } from "react";
-import { Building2, Calendar, Clock, Search, Monitor } from "lucide-react";
+import { Building2, Calendar, Clock, Search, Monitor, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { RoomCard } from "@/components/RoomCard";
 import { BookingForm } from "@/components/BookingForm";
+import { LoginForm } from "@/components/LoginForm";
+import { UserMenu } from "@/components/UserMenu";
 import { useMeetingRooms } from "@/hooks/useMeetingRooms";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const { rooms, bookRoom } = useMeetingRooms();
+  const { user, loading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   const filteredRooms = rooms.filter(room =>
     room.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -27,6 +33,10 @@ const Index = () => {
   const occupiedRooms = filteredRooms.filter(room => !room.isAvailable);
 
   const handleBookRoom = (roomId: string) => {
+    if (!user) {
+      setShowLoginDialog(true);
+      return;
+    }
     setSelectedRoomId(roomId);
   };
 
@@ -82,16 +92,35 @@ const Index = () => {
                 <p className="text-sm sm:text-base text-white/80">Book your meeting space</p>
               </div>
             </div>
-            <Button
-              onClick={() => navigate('/tv/room-001')}
-              variant="secondary"
-              className="bg-white/10 hover:bg-white/20 border-white/20 text-white text-sm sm:text-base"
-              size="sm"
-            >
-              <Monitor className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">TV Display Demo</span>
-              <span className="sm:hidden">TV Demo</span>
-            </Button>
+            
+            <div className="flex items-center gap-3">
+              {user ? (
+                <UserMenu />
+              ) : (
+                <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 border-white/20 text-white">
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Login
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <LoginForm onClose={() => setShowLoginDialog(false)} />
+                  </DialogContent>
+                </Dialog>
+              )}
+              
+              <Button
+                onClick={() => navigate('/tv/turf-001')}
+                variant="secondary"
+                className="bg-white/10 hover:bg-white/20 border-white/20 text-white text-sm sm:text-base"
+                size="sm"
+              >
+                <Monitor className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">TV Display</span>
+                <span className="sm:hidden">TV</span>
+              </Button>
+            </div>
           </div>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm sm:text-base">
