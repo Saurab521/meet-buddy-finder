@@ -1,6 +1,8 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { User } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+
+const ALLOWED_DOMAIN = 'electorq.com';
 
 interface AuthContextType {
   user: User | null;
@@ -8,6 +10,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,16 +28,31 @@ export const useAuthState = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const isAllowed = (email?: string | null) =>
+      !!email && email.toLowerCase().endsWith(`@${ALLOWED_DOMAIN}`);
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      const u = session?.user ?? null;
+      if (u && !isAllowed(u.email)) {
+        supabase.auth.signOut();
+        setUser(null);
+      } else {
+        setUser(u);
+      }
       setLoading(false);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
+      async (_event, session) => {
+        const u = session?.user ?? null;
+        if (u && !isAllowed(u.email)) {
+          await supabase.auth.signOut();
+          setUser(null);
+        } else {
+          setUser(u);
+        }
         setLoading(false);
       }
     );
@@ -58,6 +76,17 @@ export const useAuthState = () => {
     if (error) throw error;
   };
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        queryParams: { hd: ALLOWED_DOMAIN },
+        redirectTo: window.location.origin,
+      },
+    });
+    if (error) throw error;
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -69,5 +98,6 @@ export const useAuthState = () => {
     signIn,
     signUp,
     signOut,
+    signInWithGoogle,
   };
 };

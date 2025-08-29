@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Building2 } from 'lucide-react';
+import { Loader2, Building2, Chrome } from 'lucide-react';
 
 interface LoginFormProps {
   onClose?: () => void;
@@ -16,17 +16,18 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const ALLOWED_DOMAIN = 'electorq.com';
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check if email ends with @baazbike.com
-    if (!email.endsWith('@baazbike.com')) {
+    // Check if email ends with @electorq.com
+    if (!email.toLowerCase().endsWith(`@${ALLOWED_DOMAIN}`)) {
       toast({
         title: 'Access Denied',
-        description: 'Please use your Baaz Bike company email (@baazbike.com)',
+        description: `Please use your company email (@${ALLOWED_DOMAIN})`,
         variant: 'destructive',
       });
       return;
@@ -82,7 +83,7 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
             <Input
               id="email"
               type="email"
-              placeholder="your.name@baazbike.com"
+              placeholder={`your.name@${ALLOWED_DOMAIN}`}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -107,6 +108,24 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isSignUp ? 'Create Account' : 'Sign In'}
           </Button>
+
+          <div className="relative">
+            <div className="my-2 text-center text-xs text-muted-foreground">or</div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => signInWithGoogle()}
+          >
+            <Chrome className="mr-2 h-4 w-4" />
+            Continue with Google
+          </Button>
+
+          <div className="text-center text-xs text-muted-foreground mt-2">
+            Only @{ALLOWED_DOMAIN} accounts are allowed
+          </div>
           
           <div className="text-center">
             <Button
