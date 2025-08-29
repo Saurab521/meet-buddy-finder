@@ -1,9 +1,10 @@
-import { Clock, Users, MapPin, Monitor, MonitorX } from "lucide-react";
+import { Clock, Users, MapPin, Monitor, MonitorX, Tv } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MeetingRoom } from "@/types/meeting";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 interface RoomCardProps {
   room: MeetingRoom;
@@ -11,6 +12,7 @@ interface RoomCardProps {
 }
 
 export const RoomCard = ({ room, onBook }: RoomCardProps) => {
+  const navigate = useNavigate();
   const getStatusColor = () => {
     if (room.isAvailable) return "available";
     return "occupied";
@@ -96,13 +98,27 @@ export const RoomCard = ({ room, onBook }: RoomCardProps) => {
           </div>
         )}
 
-        <Button 
-          onClick={() => onBook(room.id)}
-          disabled={!room.isAvailable}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
-        >
-          {room.isAvailable ? 'Book Room' : 'Room Occupied'}
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => onBook(room.id)}
+            disabled={!room.isAvailable}
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+          >
+            {room.isAvailable ? 'Book Room' : 'Room Occupied'}
+          </Button>
+          
+          {room.hasTV && (
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/tv/${room.id}`)}
+              className="px-3 border-primary/20 hover:bg-primary/10"
+              title="View TV Display"
+            >
+              <Tv className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
