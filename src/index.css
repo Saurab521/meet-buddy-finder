@@ -6,31 +6,31 @@
 
 @layer base {
   :root {
-    /* Corporate Professional Theme */
-    --background: 210 40% 98%;
-    --foreground: 222 84% 4.9%;
+    /* Baaz Bike Orange, Black, White Theme */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 84% 4.9%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 84% 4.9%;
+    --popover-foreground: 0 0% 0%;
 
-    /* Professional Blue Primary */
-    --primary: 217 91% 60%;
+    /* Orange Primary Brand Color */
+    --primary: 24 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 91% 70%;
+    --primary-glow: 24 100% 60%;
 
     /* Clean Secondary */
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 0%;
 
     /* Subtle Muted */
-    --muted: 210 40% 95%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    /* Professional Accent */
-    --accent: 142 76% 36%;
+    /* Orange Accent */
+    --accent: 24 100% 45%;
     --accent-foreground: 0 0% 100%;
 
     /* Status Colors */
@@ -38,27 +38,27 @@
     --available-foreground: 0 0% 100%;
     --occupied: 0 84% 60%;
     --occupied-foreground: 0 0% 100%;
-    --warning: 43 89% 55%;
-    --warning-foreground: 0 0% 100%;
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 0%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 217 91% 60%;
+    --border: 0 0% 92%;
+    --input: 0 0% 96%;
+    --ring: 24 100% 50%;
 
     --radius: 0.75rem;
 
-    /* Professional Gradients */
+    /* Orange Brand Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-card: linear-gradient(135deg, hsl(var(--card)), hsl(210 40% 99%));
+    --gradient-card: linear-gradient(135deg, hsl(var(--card)), hsl(0 0% 99%));
     --gradient-status: linear-gradient(90deg, hsl(var(--available)), hsl(142 76% 45%));
 
-    /* Professional Shadows */
-    --shadow-card: 0 4px 6px -1px hsl(217 91% 60% / 0.1), 0 2px 4px -1px hsl(217 91% 60% / 0.06);
-    --shadow-elevated: 0 10px 15px -3px hsl(217 91% 60% / 0.1), 0 4px 6px -2px hsl(217 91% 60% / 0.05);
-    --shadow-tv: 0 25px 50px -12px hsl(217 91% 60% / 0.25);
+    /* Orange Brand Shadows */
+    --shadow-card: 0 4px 6px -1px hsl(24 100% 50% / 0.1), 0 2px 4px -1px hsl(24 100% 50% / 0.06);
+    --shadow-elevated: 0 10px 15px -3px hsl(24 100% 50% / 0.1), 0 4px 6px -2px hsl(24 100% 50% / 0.05);
+    --shadow-tv: 0 25px 50px -12px hsl(0 0% 0% / 0.25);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
