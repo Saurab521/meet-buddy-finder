@@ -14,6 +14,7 @@ interface LoginFormProps {
 export const LoginForm = ({ onClose }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const ALLOWED_DOMAIN = 'electorq.com';
@@ -37,7 +38,7 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
 
     try {
       if (isSignUp) {
-        await signUp(email, password);
+        await signUp(email, password, fullName?.trim() || undefined);
         toast({
           title: 'Success',
           description: 'Account created successfully! Please check your email to verify your account.',
@@ -89,6 +90,21 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
               required
             />
           </div>
+
+          {isSignUp && (
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="Your full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input

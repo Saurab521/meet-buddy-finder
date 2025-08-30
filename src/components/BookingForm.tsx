@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/hooks/useAuth";
 import { CalendarDays, Clock, Users, X } from "lucide-react";
 import { MeetingRoom, Booking } from "@/types/meeting";
 
@@ -15,10 +15,13 @@ interface BookingFormProps {
 }
 
 export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
+  const { user } = useAuth();
+  const defaultName = user?.user_metadata?.full_name || (user?.email?.split("@")[0] ?? "");
+  const defaultEmail = user?.email || "";
   const [formData, setFormData] = useState({
     title: '',
-    organizer: '',
-    organizerEmail: '',
+    organizer: defaultName,
+    organizerEmail: defaultEmail,
     department: '',
     startTime: '',
     endTime: '',
@@ -44,9 +47,6 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
     onSubmit(booking);
   };
 
-  const departments = [
-    'Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations', 'Design', 'Product'
-  ];
 
   return (
     <Card className="max-w-2xl mx-auto bg-gradient-card shadow-elevated">
@@ -95,22 +95,22 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
                 onChange={(e) => setFormData(prev => ({ ...prev, organizerEmail: e.target.value }))}
                 placeholder="your.email@company.com"
                 required
+                readOnly
                 className="bg-background"
               />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="department">Department *</Label>
-              <Select value={formData.department} onValueChange={(value) => setFormData(prev => ({ ...prev, department: value }))}>
-                <SelectTrigger className="bg-background">
-                  <SelectValue placeholder="Select department" />
-                </SelectTrigger>
-                <SelectContent>
-                  {departments.map(dept => (
-                    <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                id="department"
+                type="text"
+                value={formData.department}
+                onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
+                placeholder="Type your department"
+                required
+                className="bg-background"
+              />
             </div>
           </div>
 

@@ -99,7 +99,7 @@ const Index = () => {
               ) : (
                 <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
                   <DialogTrigger asChild>
-                    <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 border-white/20 text-white">
+                    <Button variant="secondary" size="sm">
                       <LogIn className="h-4 w-4 mr-2" />
                       Login
                     </Button>

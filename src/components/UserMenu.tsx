@@ -36,7 +36,7 @@ export const UserMenu = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <User className="h-4 w-4" />
-          {user.email?.split('@')[0]}
+          {user.user_metadata?.full_name || user.email?.split('@')[0]}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
