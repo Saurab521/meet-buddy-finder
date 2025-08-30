@@ -18,11 +18,14 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
   const { user } = useAuth();
   const defaultName = user?.user_metadata?.full_name || (user?.email?.split("@")[0] ?? "");
   const defaultEmail = user?.email || "";
+  // Set default department as "Baaz Bike" for all users
+  const defaultDepartment = "Baaz Bike";
+  
   const [formData, setFormData] = useState({
     title: '',
     organizer: defaultName,
     organizerEmail: defaultEmail,
-    department: '',
+    department: defaultDepartment,
     startTime: '',
     endTime: '',
     attendees: 1,

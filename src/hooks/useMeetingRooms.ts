@@ -218,6 +218,27 @@ export const useMeetingRooms = () => {
   const [rooms, setRooms] = useState<MeetingRoom[]>(mockRooms);
   const [bookings, setBookings] = useState<Booking[]>([]);
 
+  // Load bookings from localStorage on mount
+  useEffect(() => {
+    const storedBookings = JSON.parse(localStorage.getItem('meetingBookings') || '[]');
+    setBookings(storedBookings);
+    
+    // Update rooms with stored bookings
+    setRooms(prevRooms =>
+      prevRooms.map(room => {
+        const roomBooking = storedBookings.find((b: Booking) => b.roomId === room.id && b.isActive);
+        if (roomBooking) {
+          return {
+            ...room,
+            isAvailable: false,
+            currentBooking: roomBooking
+          };
+        }
+        return room;
+      })
+    );
+  }, []);
+
   // Simulate real-time updates
   useEffect(() => {
     const interval = setInterval(() => {
@@ -233,6 +254,11 @@ export const useMeetingRooms = () => {
       id: `booking-${Date.now()}`,
       isActive: true
     };
+
+    // Store booking in localStorage for persistence
+    const storedBookings = JSON.parse(localStorage.getItem('meetingBookings') || '[]');
+    storedBookings.push(newBooking);
+    localStorage.setItem('meetingBookings', JSON.stringify(storedBookings));
 
     // Update room status
     setRooms(prevRooms =>
@@ -254,6 +280,11 @@ export const useMeetingRooms = () => {
   const cancelBooking = (bookingId: string) => {
     const booking = bookings.find(b => b.id === bookingId);
     if (!booking) return;
+
+    // Remove from localStorage
+    const storedBookings = JSON.parse(localStorage.getItem('meetingBookings') || '[]');
+    const updatedBookings = storedBookings.filter((b: Booking) => b.id !== bookingId);
+    localStorage.setItem('meetingBookings', JSON.stringify(updatedBookings));
 
     // Update room status
     setRooms(prevRooms =>

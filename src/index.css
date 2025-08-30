@@ -20,6 +20,9 @@
     --primary: 24 100% 50%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 24 100% 60%;
+    
+    /* Login Button Fix */
+    --button-primary-text: 0 0% 100%;
 
     /* Clean Secondary */
     --secondary: 0 0% 96%;
