@@ -7,6 +7,7 @@ export interface MeetingRoom {
   hasTV: boolean;
   currentBooking?: Booking;
   nextBooking?: Booking;
+  todayBookings?: Booking[];
 }
 
 export interface Booking {
@@ -21,6 +22,7 @@ export interface Booking {
   attendees: number;
   description?: string;
   isActive: boolean;
+  date: string; // YYYY-MM-DD format
 }
 
 export interface Employee {

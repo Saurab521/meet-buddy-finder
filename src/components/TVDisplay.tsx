@@ -9,8 +9,13 @@ interface TVDisplayProps {
 export const TVDisplay = ({ room }: TVDisplayProps) => {
   const currentTime = format(new Date(), 'HH:mm');
   const currentDate = format(new Date(), 'EEEE, MMMM do, yyyy');
+  
+  const todayBookings = room.todayBookings || [];
+  const upcomingBookings = todayBookings.filter(booking => 
+    new Date(booking.startTime) > new Date()
+  );
 
-  if (!room.currentBooking && !room.nextBooking) {
+  if (!room.currentBooking && todayBookings.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-primary flex flex-col items-center justify-center text-white p-8">
         <div className="text-center space-y-8 max-w-4xl">
@@ -97,14 +102,30 @@ export const TVDisplay = ({ room }: TVDisplayProps) => {
             </div>
           </div>
           
-          {room.nextBooking && (
-            <div className="bg-warning/20 backdrop-blur-sm rounded-2xl p-8 border border-warning/30">
-              <div className="text-2xl font-bold text-warning-foreground mb-4">NEXT MEETING</div>
-              <div className="text-xl">
-                <span className="font-semibold">{room.nextBooking.title}</span> by {room.nextBooking.organizer}
-              </div>
-              <div className="text-lg text-white/80 mt-2">
-                {format(room.nextBooking.startTime, 'HH:mm')} - {format(room.nextBooking.endTime, 'HH:mm')}
+          {upcomingBookings.length > 0 && (
+            <div className="space-y-4">
+              <div className="bg-warning/20 backdrop-blur-sm rounded-2xl p-8 border border-warning/30">
+                <div className="text-2xl font-bold text-warning-foreground mb-4">
+                  {upcomingBookings.length === 1 ? 'NEXT MEETING' : `UPCOMING MEETINGS (${upcomingBookings.length})`}
+                </div>
+                {upcomingBookings.slice(0, 3).map((booking, index) => (
+                  <div key={booking.id} className={`${index > 0 ? 'border-t border-white/20 pt-4 mt-4' : ''}`}>
+                    <div className="text-xl">
+                      <span className="font-semibold">{booking.title}</span> by {booking.organizer}
+                    </div>
+                    <div className="text-lg text-white/80 mt-1">
+                      {format(booking.startTime, 'HH:mm')} - {format(booking.endTime, 'HH:mm')}
+                    </div>
+                    {booking.description && (
+                      <div className="text-sm text-white/70 mt-1">{booking.description}</div>
+                    )}
+                  </div>
+                ))}
+                {upcomingBookings.length > 3 && (
+                  <div className="text-center text-white/60 mt-4 text-lg">
+                    +{upcomingBookings.length - 3} more meetings today
+                  </div>
+                )}
               </div>
             </div>
           )}

@@ -22,7 +22,8 @@ const mockRooms: MeetingRoom[] = [
       endTime: new Date(new Date().setHours(11, 30, 0, 0)),
       attendees: 6,
       description: 'Monthly sales review',
-      isActive: true
+      isActive: true,
+      date: new Date().toISOString().split('T')[0]
     }
   },
   {
@@ -115,7 +116,8 @@ const mockRooms: MeetingRoom[] = [
       startTime: new Date(new Date().setHours(14, 0, 0, 0)),
       endTime: new Date(new Date().setHours(15, 0, 0, 0)),
       attendees: 5,
-      isActive: true
+      isActive: true,
+      date: new Date().toISOString().split('T')[0]
     }
   },
   {
@@ -192,7 +194,8 @@ const mockRooms: MeetingRoom[] = [
       startTime: new Date(new Date().setHours(16, 0, 0, 0)),
       endTime: new Date(new Date().setHours(18, 0, 0, 0)),
       attendees: 8,
-      isActive: false
+      isActive: false,
+      date: new Date().toISOString().split('T')[0]
     }
   },
   // Second Floor Rooms
@@ -221,29 +224,91 @@ export const useMeetingRooms = () => {
   // Load bookings from localStorage on mount
   useEffect(() => {
     const storedBookings = JSON.parse(localStorage.getItem('meetingBookings') || '[]');
-    setBookings(storedBookings);
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Parse dates for stored bookings
+    const validBookings = storedBookings.map((b: any) => ({
+      ...b,
+      startTime: new Date(b.startTime),
+      endTime: new Date(b.endTime),
+      date: b.date || today
+    }));
+    
+    setBookings(validBookings);
     
     // Update rooms with stored bookings
     setRooms(prevRooms =>
       prevRooms.map(room => {
-        const roomBooking = storedBookings.find((b: Booking) => b.roomId === room.id && b.isActive);
-        if (roomBooking) {
-          return {
-            ...room,
-            isAvailable: false,
-            currentBooking: roomBooking
-          };
-        }
-        return room;
+        const todayBookings = validBookings.filter((b: Booking) => 
+          b.roomId === room.id && b.date === today
+        );
+        
+        // Sort bookings by start time
+        todayBookings.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+        
+        const now = new Date();
+        const currentBooking = todayBookings.find((b: Booking) => 
+          b.startTime <= now && b.endTime > now && b.isActive
+        );
+        
+        const nextBooking = todayBookings.find((b: Booking) => 
+          b.startTime > now
+        );
+        
+        return {
+          ...room,
+          isAvailable: !currentBooking,
+          currentBooking,
+          nextBooking,
+          todayBookings
+        };
       })
     );
   }, []);
 
-  // Simulate real-time updates
+  // Auto-refresh booking status every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setRooms(prevRooms => [...prevRooms]);
-    }, 30000); // Update every 30 seconds
+      const storedBookings = JSON.parse(localStorage.getItem('meetingBookings') || '[]');
+      const today = new Date().toISOString().split('T')[0];
+      
+      const validBookings = storedBookings.map((b: any) => ({
+        ...b,
+        startTime: new Date(b.startTime),
+        endTime: new Date(b.endTime),
+        date: b.date || today
+      }));
+      
+      setBookings(validBookings);
+      
+      // Update rooms with current booking status
+      setRooms(prevRooms =>
+        prevRooms.map(room => {
+          const todayBookings = validBookings.filter((b: Booking) => 
+            b.roomId === room.id && b.date === today
+          );
+          
+          todayBookings.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+          
+          const now = new Date();
+          const currentBooking = todayBookings.find((b: Booking) => 
+            b.startTime <= now && b.endTime > now && b.isActive
+          );
+          
+          const nextBooking = todayBookings.find((b: Booking) => 
+            b.startTime > now
+          );
+          
+          return {
+            ...room,
+            isAvailable: !currentBooking,
+            currentBooking,
+            nextBooking,
+            todayBookings
+          };
+        })
+      );
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);
@@ -260,20 +325,39 @@ export const useMeetingRooms = () => {
     storedBookings.push(newBooking);
     localStorage.setItem('meetingBookings', JSON.stringify(storedBookings));
 
-    // Update room status
+    // Update bookings state
+    setBookings(prev => [...prev, newBooking]);
+
+    // Update room status immediately
+    const today = new Date().toISOString().split('T')[0];
     setRooms(prevRooms =>
-      prevRooms.map(room =>
-        room.id === booking.roomId
-          ? {
-              ...room,
-              isAvailable: false,
-              currentBooking: newBooking
-            }
-          : room
-      )
+      prevRooms.map(room => {
+        if (room.id === booking.roomId) {
+          const allBookings = [...(room.todayBookings || []), newBooking];
+          const todayBookings = allBookings.filter(b => b.date === today);
+          todayBookings.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+          
+          const now = new Date();
+          const currentBooking = todayBookings.find((b: Booking) => 
+            b.startTime <= now && b.endTime > now && b.isActive
+          );
+          
+          const nextBooking = todayBookings.find((b: Booking) => 
+            b.startTime > now
+          );
+          
+          return {
+            ...room,
+            isAvailable: !currentBooking,
+            currentBooking,
+            nextBooking,
+            todayBookings
+          };
+        }
+        return room;
+      })
     );
 
-    setBookings(prev => [...prev, newBooking]);
     return newBooking;
   };
 

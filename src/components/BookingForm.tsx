@@ -4,9 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/hooks/useAuth";
 import { CalendarDays, Clock, Users, X } from "lucide-react";
 import { MeetingRoom, Booking } from "@/types/meeting";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface BookingFormProps {
   room: MeetingRoom;
@@ -21,6 +25,7 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
   // Set default department as "Baaz Bike" for all users
   const defaultDepartment = "Baaz Bike";
   
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [formData, setFormData] = useState({
     title: '',
     organizer: defaultName,
@@ -35,16 +40,18 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    const dateStr = format(selectedDate, 'yyyy-MM-dd');
     const booking: Omit<Booking, 'id' | 'isActive'> = {
       roomId: room.id,
       title: formData.title,
       organizer: formData.organizer,
       organizerEmail: formData.organizerEmail,
       department: formData.department,
-      startTime: new Date(`${new Date().toISOString().split('T')[0]}T${formData.startTime}`),
-      endTime: new Date(`${new Date().toISOString().split('T')[0]}T${formData.endTime}`),
+      startTime: new Date(`${dateStr}T${formData.startTime}`),
+      endTime: new Date(`${dateStr}T${formData.endTime}`),
       attendees: formData.attendees,
-      description: formData.description
+      description: formData.description,
+      date: dateStr
     };
     
     onSubmit(booking);
@@ -62,6 +69,37 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
       
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="date" className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4" />
+              Meeting Date *
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal bg-background",
+                    !selectedDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarDays className="mr-2 h-4 w-4" />
+                  {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="title">Meeting Title *</Label>
