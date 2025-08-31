@@ -22,15 +22,13 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
   const { user } = useAuth();
   const defaultName = user?.user_metadata?.full_name || (user?.email?.split("@")[0] ?? "");
   const defaultEmail = user?.email || "";
-  // Set default department as "Baaz Bike" for all users
-  const defaultDepartment = "Baaz Bike";
   
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [formData, setFormData] = useState({
     title: '',
     organizer: defaultName,
     organizerEmail: defaultEmail,
-    department: defaultDepartment,
+    department: 'Baaz Bike',
     startTime: '',
     endTime: '',
     attendees: 1,
@@ -126,33 +124,18 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.organizerEmail}
-                onChange={(e) => setFormData(prev => ({ ...prev, organizerEmail: e.target.value }))}
-                placeholder="your.email@company.com"
-                required
-                readOnly
-                className="bg-background"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="department">Department *</Label>
-              <Input
-                id="department"
-                type="text"
-                value={formData.department}
-                onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
-                placeholder="Type your department"
-                required
-                className="bg-background"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email *</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.organizerEmail}
+              onChange={(e) => setFormData(prev => ({ ...prev, organizerEmail: e.target.value }))}
+              placeholder="your.email@company.com"
+              required
+              readOnly
+              className="bg-background"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

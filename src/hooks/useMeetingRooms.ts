@@ -314,6 +314,25 @@ export const useMeetingRooms = () => {
   }, []);
 
   const bookRoom = (booking: Omit<Booking, 'id' | 'isActive'>) => {
+    // Check for conflicts with existing bookings
+    const existingBookings = JSON.parse(localStorage.getItem('meetingBookings') || '[]');
+    const roomBookings = existingBookings.filter((b: any) => 
+      b.roomId === booking.roomId && b.date === booking.date
+    );
+    
+    const hasConflict = roomBookings.some((existingBooking: any) => {
+      const existingStart = new Date(existingBooking.startTime);
+      const existingEnd = new Date(existingBooking.endTime);
+      const newStart = booking.startTime;
+      const newEnd = booking.endTime;
+      
+      return (newStart < existingEnd && newEnd > existingStart);
+    });
+    
+    if (hasConflict) {
+      throw new Error('Time slot conflict with existing booking');
+    }
+
     const newBooking: Booking = {
       ...booking,
       id: `booking-${Date.now()}`,

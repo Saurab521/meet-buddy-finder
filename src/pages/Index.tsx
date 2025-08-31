@@ -51,7 +51,7 @@ const Index = () => {
     } catch (error) {
       toast({
         title: "Booking Failed",
-        description: "Please try again.",
+        description: error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
     }
