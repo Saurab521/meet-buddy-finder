@@ -76,23 +76,21 @@ const Index = () => {
       {/* Header */}
       <header className="bg-gradient-primary text-white shadow-elevated">
         <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          {/* Company Name */}
+          {/* Company Name and Logo */}
           <div className="text-center mb-6">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2">
-              Baaz Bike
-            </h1>
-            <p className="text-lg sm:text-xl text-white/80">Meeting Room Booking System</p>
+            <div className="flex items-center justify-center gap-4 mb-4">
+              {/* Logo placeholder - users can replace with their company logo */}
+              <div className="w-16 h-16 bg-white/20 rounded-lg flex items-center justify-center">
+                <Building2 className="h-10 w-10 text-white" />
+              </div>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
+                Baaz Bike
+              </h1>
+            </div>
+            <p className="text-lg sm:text-xl text-white/80">Book your meeting space</p>
           </div>
           
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-3">
-              <Building2 className="h-8 w-8 sm:h-10 sm:w-10" />
-              <div className="text-center sm:text-left">
-                <h2 className="text-xl sm:text-2xl font-semibold">Conference Rooms</h2>
-                <p className="text-sm sm:text-base text-white/80">Book your meeting space</p>
-              </div>
-            </div>
-            
             <div className="flex items-center gap-3">
               {user ? (
                 <UserMenu />
