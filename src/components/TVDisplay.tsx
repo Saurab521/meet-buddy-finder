@@ -128,7 +128,7 @@ export const TVDisplay = ({ room }: TVDisplayProps) => {
             <div className="space-y-6">
               <div className="text-5xl font-bold">{room.currentBooking.title}</div>
               
-              <div className="grid grid-cols-2 gap-8 text-left max-w-3xl mx-auto">
+                <div className="grid grid-cols-2 gap-8 text-left max-w-4xl mx-auto">
                 <div className="space-y-3">
                   <div className="text-2xl">
                     <span className="text-white/70">Organizer:</span>
@@ -138,9 +138,17 @@ export const TVDisplay = ({ room }: TVDisplayProps) => {
                     <span className="text-white/70">Department:</span>
                     <div className="font-semibold">{room.currentBooking.department}</div>
                   </div>
+                  <div className="text-2xl">
+                    <span className="text-white/70">Email:</span>
+                    <div className="font-semibold">{room.currentBooking.organizerEmail}</div>
+                  </div>
                 </div>
                 
                 <div className="space-y-3">
+                  <div className="text-2xl">
+                    <span className="text-white/70">Date:</span>
+                    <div className="font-semibold">{room.currentBooking.date}</div>
+                  </div>
                   <div className="text-2xl">
                     <span className="text-white/70">Time:</span>
                     <div className="font-semibold">

@@ -109,17 +109,6 @@ const Index = () => {
                   </DialogContent>
                 </Dialog>
               )}
-              
-              <Button
-                onClick={() => navigate('/tv/turf-001')}
-                variant="secondary"
-                className="bg-white/10 hover:bg-white/20 border-white/20 text-white text-sm sm:text-base"
-                size="sm"
-              >
-                <Monitor className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">TV Display</span>
-                <span className="sm:hidden">TV</span>
-              </Button>
             </div>
           </div>
           

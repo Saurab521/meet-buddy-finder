@@ -26,9 +26,9 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [formData, setFormData] = useState({
     title: '',
-    organizer: defaultName,
+    name: defaultName,
     organizerEmail: defaultEmail,
-    department: 'Baaz Bike',
+    department: '',
     startTime: '',
     endTime: '',
     attendees: 1,
@@ -42,7 +42,7 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
     const booking: Omit<Booking, 'id' | 'isActive'> = {
       roomId: room.id,
       title: formData.title,
-      organizer: formData.organizer,
+      organizer: formData.name,
       organizerEmail: formData.organizerEmail,
       department: formData.department,
       startTime: new Date(`${dateStr}T${formData.startTime}`),
@@ -112,16 +112,28 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="organizer">Organizer Name *</Label>
+              <Label htmlFor="name">Name *</Label>
               <Input
-                id="organizer"
-                value={formData.organizer}
-                onChange={(e) => setFormData(prev => ({ ...prev, organizer: e.target.value }))}
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Your name"
                 required
                 className="bg-background"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="department">Department *</Label>
+            <Input
+              id="department"
+              value={formData.department}
+              onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
+              placeholder="Your department"
+              required
+              className="bg-background"
+            />
           </div>
 
           <div className="space-y-2">
