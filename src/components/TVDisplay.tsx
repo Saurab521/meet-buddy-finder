@@ -1,15 +1,31 @@
+import { useEffect, useState } from "react";
 import { Clock, Calendar, Users, MapPin, Building } from "lucide-react";
 import { MeetingRoom } from "@/types/meeting";
 import { format } from "date-fns";
 import { WiFiQRCode } from "./WiFiQRCode";
+import { useMeetingRooms } from "@/hooks/useMeetingRooms";
 
 interface TVDisplayProps {
   room: MeetingRoom;
 }
 
-export const TVDisplay = ({ room }: TVDisplayProps) => {
-  const currentTime = format(new Date(), 'HH:mm');
-  const currentDate = format(new Date(), 'EEEE, MMMM do, yyyy');
+export const TVDisplay = ({ room: initialRoom }: TVDisplayProps) => {
+  const { rooms } = useMeetingRooms();
+  const [currentTime, setCurrentTime] = useState(format(new Date(), 'HH:mm'));
+  const [currentDate, setCurrentDate] = useState(format(new Date(), 'EEEE, MMMM do, yyyy'));
+  
+  // Get the latest room data from the hook to ensure real-time updates
+  const room = rooms.find(r => r.id === initialRoom.id) || initialRoom;
+  
+  // Update time and date every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(format(new Date(), 'HH:mm'));
+      setCurrentDate(format(new Date(), 'EEEE, MMMM do, yyyy'));
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
   
   const todayBookings = room.todayBookings || [];
   const upcomingBookings = todayBookings.filter(booking => 
