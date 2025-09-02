@@ -14,6 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          attendees: number
+          created_at: string | null
+          date: string
+          department: string
+          description: string | null
+          end_time: string
+          id: string
+          is_active: boolean | null
+          organizer: string
+          organizer_email: string
+          room_id: string
+          start_time: string
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attendees: number
+          created_at?: string | null
+          date: string
+          department: string
+          description?: string | null
+          end_time: string
+          id?: string
+          is_active?: boolean | null
+          organizer: string
+          organizer_email: string
+          room_id: string
+          start_time: string
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attendees?: number
+          created_at?: string | null
+          date?: string
+          department?: string
+          description?: string | null
+          end_time?: string
+          id?: string
+          is_active?: boolean | null
+          organizer?: string
+          organizer_email?: string
+          room_id?: string
+          start_time?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meeting_rooms: {
+        Row: {
+          capacity: number
+          created_at: string | null
+          has_tv: boolean | null
+          id: string
+          location: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          capacity: number
+          created_at?: string | null
+          has_tv?: boolean | null
+          id: string
+          location: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          capacity?: number
+          created_at?: string | null
+          has_tv?: boolean | null
+          id?: string
+          location?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MeetingRoom, Booking } from '@/types/meeting';
+import { supabase } from '@/integrations/supabase/client';
 
 // Baaz Bike Company Meeting Rooms
 const mockRooms: MeetingRoom[] = [
@@ -218,197 +219,249 @@ const mockRooms: MeetingRoom[] = [
 ];
 
 export const useMeetingRooms = () => {
-  const [rooms, setRooms] = useState<MeetingRoom[]>(mockRooms);
+  const [rooms, setRooms] = useState<MeetingRoom[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Load bookings from localStorage on mount
+  // Load initial data and set up real-time subscriptions
   useEffect(() => {
-    const storedBookings = JSON.parse(localStorage.getItem('meetingBookings') || '[]');
-    const today = new Date().toISOString().split('T')[0];
-    
-    // Parse dates for stored bookings
-    const validBookings = storedBookings.map((b: any) => ({
-      ...b,
-      startTime: new Date(b.startTime),
-      endTime: new Date(b.endTime),
-      date: b.date || today
-    }));
-    
-    setBookings(validBookings);
-    
-    // Update rooms with stored bookings
-    setRooms(prevRooms =>
-      prevRooms.map(room => {
-        const todayBookings = validBookings.filter((b: Booking) => 
-          b.roomId === room.id && b.date === today
-        );
-        
-        // Sort bookings by start time
-        todayBookings.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
-        
-        const now = new Date();
-        const currentBooking = todayBookings.find((b: Booking) => 
-          b.startTime <= now && b.endTime > now && b.isActive
-        );
-        
-        const nextBooking = todayBookings.find((b: Booking) => 
-          b.startTime > now
-        );
-        
-        return {
-          ...room,
-          isAvailable: !currentBooking,
-          currentBooking,
-          nextBooking,
-          todayBookings
-        };
-      })
-    );
-  }, []);
+    const loadData = async () => {
+      try {
+        // Load meeting rooms
+        const { data: roomsData, error: roomsError } = await supabase
+          .from('meeting_rooms')
+          .select('*');
 
-  // Auto-refresh booking status every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const storedBookings = JSON.parse(localStorage.getItem('meetingBookings') || '[]');
-      const today = new Date().toISOString().split('T')[0];
-      
-      const validBookings = storedBookings.map((b: any) => ({
-        ...b,
-        startTime: new Date(b.startTime),
-        endTime: new Date(b.endTime),
-        date: b.date || today
-      }));
-      
-      setBookings(validBookings);
-      
-      // Update rooms with current booking status
-      setRooms(prevRooms =>
-        prevRooms.map(room => {
-          const todayBookings = validBookings.filter((b: Booking) => 
-            b.roomId === room.id && b.date === today
-          );
-          
-          todayBookings.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
-          
-          const now = new Date();
-          const currentBooking = todayBookings.find((b: Booking) => 
-            b.startTime <= now && b.endTime > now && b.isActive
-          );
-          
-          const nextBooking = todayBookings.find((b: Booking) => 
-            b.startTime > now
-          );
-          
-          return {
-            ...room,
-            isAvailable: !currentBooking,
-            currentBooking,
-            nextBooking,
-            todayBookings
-          };
-        })
-      );
-    }, 30000);
+        if (roomsError) throw roomsError;
 
-    return () => clearInterval(interval);
-  }, []);
+        // Load bookings for today
+        const today = new Date().toISOString().split('T')[0];
+        const { data: bookingsData, error: bookingsError } = await supabase
+          .from('bookings')
+          .select('*')
+          .eq('date', today)
+          .eq('is_active', true);
 
-  const bookRoom = (booking: Omit<Booking, 'id' | 'isActive'>) => {
-    // Check for conflicts with existing bookings
-    const existingBookings = JSON.parse(localStorage.getItem('meetingBookings') || '[]');
-    const roomBookings = existingBookings.filter((b: any) => 
-      b.roomId === booking.roomId && b.date === booking.date
-    );
-    
-    const hasConflict = roomBookings.some((existingBooking: any) => {
-      const existingStart = new Date(existingBooking.startTime);
-      const existingEnd = new Date(existingBooking.endTime);
-      const newStart = booking.startTime;
-      const newEnd = booking.endTime;
-      
-      return (newStart < existingEnd && newEnd > existingStart);
-    });
-    
-    if (hasConflict) {
-      throw new Error('Time slot conflict with existing booking');
-    }
+        if (bookingsError) throw bookingsError;
 
-    const newBooking: Booking = {
-      ...booking,
-      id: `booking-${Date.now()}`,
-      isActive: true
+        // Transform database data to match our interface
+        const transformedRooms: MeetingRoom[] = roomsData.map(room => ({
+          id: room.id,
+          name: room.name,
+          capacity: room.capacity,
+          location: room.location,
+          isAvailable: true,
+          hasTV: room.has_tv
+        }));
+
+        const transformedBookings: Booking[] = bookingsData.map(booking => ({
+          id: booking.id,
+          roomId: booking.room_id,
+          title: booking.title,
+          organizer: booking.organizer,
+          organizerEmail: booking.organizer_email,
+          department: booking.department,
+          startTime: new Date(booking.start_time),
+          endTime: new Date(booking.end_time),
+          attendees: booking.attendees,
+          description: booking.description,
+          date: booking.date,
+          isActive: booking.is_active
+        }));
+
+        setBookings(transformedBookings);
+        updateRoomsWithBookings(transformedRooms, transformedBookings);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        setLoading(false);
+      }
     };
 
-    // Store booking in localStorage for persistence
-    const storedBookings = JSON.parse(localStorage.getItem('meetingBookings') || '[]');
-    storedBookings.push(newBooking);
-    localStorage.setItem('meetingBookings', JSON.stringify(storedBookings));
+    loadData();
 
-    // Update bookings state
-    setBookings(prev => [...prev, newBooking]);
+    // Set up real-time subscription for bookings
+    const bookingsChannel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookings'
+        },
+        async () => {
+          // Reload bookings when any booking changes
+          const today = new Date().toISOString().split('T')[0];
+          const { data: bookingsData } = await supabase
+            .from('bookings')
+            .select('*')
+            .eq('date', today)
+            .eq('is_active', true);
 
-    // Update room status immediately
-    const today = new Date().toISOString().split('T')[0];
-    setRooms(prevRooms =>
-      prevRooms.map(room => {
-        if (room.id === booking.roomId) {
-          const allBookings = [...(room.todayBookings || []), newBooking];
-          const todayBookings = allBookings.filter(b => b.date === today);
-          todayBookings.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
-          
-          const now = new Date();
-          const currentBooking = todayBookings.find((b: Booking) => 
-            b.startTime <= now && b.endTime > now && b.isActive
-          );
-          
-          const nextBooking = todayBookings.find((b: Booking) => 
-            b.startTime > now
-          );
-          
-          return {
-            ...room,
-            isAvailable: !currentBooking,
-            currentBooking,
-            nextBooking,
-            todayBookings
-          };
+          if (bookingsData) {
+            const transformedBookings: Booking[] = bookingsData.map(booking => ({
+              id: booking.id,
+              roomId: booking.room_id,
+              title: booking.title,
+              organizer: booking.organizer,
+              organizerEmail: booking.organizer_email,
+              department: booking.department,
+              startTime: new Date(booking.start_time),
+              endTime: new Date(booking.end_time),
+              attendees: booking.attendees,
+              description: booking.description,
+              date: booking.date,
+              isActive: booking.is_active
+            }));
+
+            setBookings(transformedBookings);
+            
+            // Update rooms with new bookings
+            setRooms(currentRooms => {
+              return updateRoomsWithBookings([...currentRooms], transformedBookings);
+            });
+          }
         }
-        return room;
-      })
-    );
+      )
+      .subscribe();
 
-    return newBooking;
+    // Auto-refresh booking status every 30 seconds
+    const interval = setInterval(() => {
+      setRooms(currentRooms => {
+        return updateRoomsWithBookings([...currentRooms], bookings);
+      });
+    }, 30000);
+
+    return () => {
+      supabase.removeChannel(bookingsChannel);
+      clearInterval(interval);
+    };
+  }, []);
+
+  const updateRoomsWithBookings = (roomsList: MeetingRoom[], bookingsList: Booking[]) => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    return roomsList.map(room => {
+      const todayBookings = bookingsList.filter((b: Booking) => 
+        b.roomId === room.id && b.date === today
+      );
+      
+      // Sort bookings by start time
+      todayBookings.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+      
+      const now = new Date();
+      const currentBooking = todayBookings.find((b: Booking) => 
+        b.startTime <= now && b.endTime > now && b.isActive
+      );
+      
+      const nextBooking = todayBookings.find((b: Booking) => 
+        b.startTime > now
+      );
+      
+      return {
+        ...room,
+        isAvailable: !currentBooking,
+        currentBooking,
+        nextBooking,
+        todayBookings
+      };
+    });
   };
 
-  const cancelBooking = (bookingId: string) => {
-    const booking = bookings.find(b => b.id === bookingId);
-    if (!booking) return;
+  const bookRoom = async (booking: Omit<Booking, 'id' | 'isActive'>) => {
+    try {
+      // Check for conflicts with existing bookings
+      const { data: existingBookings, error: checkError } = await supabase
+        .from('bookings')
+        .select('*')
+        .eq('room_id', booking.roomId)
+        .eq('date', booking.date)
+        .eq('is_active', true);
 
-    // Remove from localStorage
-    const storedBookings = JSON.parse(localStorage.getItem('meetingBookings') || '[]');
-    const updatedBookings = storedBookings.filter((b: Booking) => b.id !== bookingId);
-    localStorage.setItem('meetingBookings', JSON.stringify(updatedBookings));
+      if (checkError) throw checkError;
 
-    // Update room status
-    setRooms(prevRooms =>
-      prevRooms.map(room =>
-        room.id === booking.roomId
-          ? {
-              ...room,
-              isAvailable: true,
-              currentBooking: undefined
-            }
-          : room
-      )
-    );
+      const hasConflict = existingBookings?.some((existingBooking: any) => {
+        const existingStart = new Date(existingBooking.start_time);
+        const existingEnd = new Date(existingBooking.end_time);
+        const newStart = booking.startTime;
+        const newEnd = booking.endTime;
+        
+        return (newStart < existingEnd && newEnd > existingStart);
+      });
+      
+      if (hasConflict) {
+        throw new Error('Time slot conflict with existing booking');
+      }
 
-    setBookings(prev => prev.filter(b => b.id !== bookingId));
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Insert booking into database
+      const { data: newBookingData, error: insertError } = await supabase
+        .from('bookings')
+        .insert({
+          room_id: booking.roomId,
+          user_id: user.id,
+          title: booking.title,
+          organizer: booking.organizer,
+          organizer_email: booking.organizerEmail,
+          department: booking.department,
+          start_time: booking.startTime.toISOString(),
+          end_time: booking.endTime.toISOString(),
+          attendees: booking.attendees,
+          description: booking.description,
+          date: booking.date,
+          is_active: true
+        })
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
+      const transformedBooking: Booking = {
+        id: newBookingData.id,
+        roomId: newBookingData.room_id,
+        title: newBookingData.title,
+        organizer: newBookingData.organizer,
+        organizerEmail: newBookingData.organizer_email,
+        department: newBookingData.department,
+        startTime: new Date(newBookingData.start_time),
+        endTime: new Date(newBookingData.end_time),
+        attendees: newBookingData.attendees,
+        description: newBookingData.description,
+        date: newBookingData.date,
+        isActive: newBookingData.is_active
+      };
+
+      return transformedBooking;
+    } catch (error) {
+      console.error('Error booking room:', error);
+      throw error;
+    }
+  };
+
+  const cancelBooking = async (bookingId: string) => {
+    try {
+      // Update booking to inactive in database
+      const { error } = await supabase
+        .from('bookings')
+        .update({ is_active: false })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error canceling booking:', error);
+      throw error;
+    }
   };
 
   return {
     rooms,
     bookings,
     bookRoom,
-    cancelBooking
+    cancelBooking,
+    loading
   };
 };

@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 interface BookingFormProps {
   room: MeetingRoom;
-  onSubmit: (booking: Omit<Booking, 'id' | 'isActive'>) => void;
+  onSubmit: (booking: Omit<Booking, 'id' | 'isActive'>) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -24,6 +24,7 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
   const defaultEmail = user?.email || "";
   
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     name: defaultName,
@@ -35,24 +36,31 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
     description: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    const dateStr = format(selectedDate, 'yyyy-MM-dd');
-    const booking: Omit<Booking, 'id' | 'isActive'> = {
-      roomId: room.id,
-      title: formData.title,
-      organizer: formData.name,
-      organizerEmail: formData.organizerEmail,
-      department: formData.department,
-      startTime: new Date(`${dateStr}T${formData.startTime}`),
-      endTime: new Date(`${dateStr}T${formData.endTime}`),
-      attendees: formData.attendees,
-      description: formData.description,
-      date: dateStr
-    };
-    
-    onSubmit(booking);
+    try {
+      const dateStr = format(selectedDate, 'yyyy-MM-dd');
+      const booking: Omit<Booking, 'id' | 'isActive'> = {
+        roomId: room.id,
+        title: formData.title,
+        organizer: formData.name,
+        organizerEmail: formData.organizerEmail,
+        department: formData.department,
+        startTime: new Date(`${dateStr}T${formData.startTime}`),
+        endTime: new Date(`${dateStr}T${formData.endTime}`),
+        attendees: formData.attendees,
+        description: formData.description,
+        date: dateStr
+      };
+      
+      await onSubmit(booking);
+    } catch (error) {
+      console.error('Error booking room:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
 
@@ -212,9 +220,10 @@ export const BookingForm = ({ room, onSubmit, onCancel }: BookingFormProps) => {
           <div className="flex gap-3 pt-4">
             <Button 
               type="submit" 
+              disabled={isSubmitting}
               className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
             >
-              Book Room
+              {isSubmitting ? 'Booking...' : 'Book Room'}
             </Button>
             <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
               Cancel

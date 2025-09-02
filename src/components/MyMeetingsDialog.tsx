@@ -39,7 +39,7 @@ export const MyMeetingsDialog = ({ open, onOpenChange }: MyMeetingsDialogProps) 
 
   const handleCancelBooking = async (bookingId: string) => {
     try {
-      cancelBooking(bookingId);
+      await cancelBooking(bookingId);
       toast({
         title: 'Meeting Cancelled',
         description: 'Your meeting has been cancelled successfully.',

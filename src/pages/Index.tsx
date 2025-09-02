@@ -40,9 +40,9 @@ const Index = () => {
     setSelectedRoomId(roomId);
   };
 
-  const handleBookingSubmit = (booking: any) => {
+  const handleBookingSubmit = async (booking: any) => {
     try {
-      bookRoom(booking);
+      await bookRoom(booking);
       toast({
         title: "Room Booked Successfully!",
         description: `${booking.title} has been scheduled.`,
