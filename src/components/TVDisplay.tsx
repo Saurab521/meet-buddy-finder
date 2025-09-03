@@ -10,12 +10,22 @@ interface TVDisplayProps {
 }
 
 export const TVDisplay = ({ room: initialRoom }: TVDisplayProps) => {
-  const { rooms } = useMeetingRooms();
+  const { rooms, loading } = useMeetingRooms();
   const [currentTime, setCurrentTime] = useState(format(new Date(), 'HH:mm'));
   const [currentDate, setCurrentDate] = useState(format(new Date(), 'EEEE, MMMM do, yyyy'));
   
   // Get the latest room data from the hook to ensure real-time updates
   const room = rooms.find(r => r.id === initialRoom.id) || initialRoom;
+  
+  // Log room updates for debugging
+  useEffect(() => {
+    console.log(`TV Display for ${initialRoom.name} - Room updated:`, {
+      isAvailable: room.isAvailable,
+      hasCurrentBooking: !!room.currentBooking,
+      hasNextBooking: !!room.nextBooking,
+      totalTodayBookings: room.todayBookings?.length || 0
+    });
+  }, [room, initialRoom.name]);
   
   // Update time and date every minute
   useEffect(() => {
