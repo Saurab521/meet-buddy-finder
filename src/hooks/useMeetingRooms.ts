@@ -228,9 +228,13 @@ export const useMeetingRooms = () => {
     const loadData = async () => {
       try {
         // Load meeting rooms
+        console.log('Loading meeting rooms from database...');
         const { data: roomsData, error: roomsError } = await supabase
           .from('meeting_rooms')
           .select('*');
+
+        console.log('Rooms data:', roomsData);
+        console.log('Rooms error:', roomsError);
 
         if (roomsError) throw roomsError;
 
@@ -254,6 +258,8 @@ export const useMeetingRooms = () => {
           hasTV: room.has_tv
         }));
 
+        console.log('Transformed rooms:', transformedRooms);
+
         const transformedBookings: Booking[] = bookingsData.map(booking => ({
           id: booking.id,
           roomId: booking.room_id,
@@ -269,8 +275,12 @@ export const useMeetingRooms = () => {
           isActive: booking.is_active
         }));
 
+        console.log('Transformed bookings:', transformedBookings);
+
         setBookings(transformedBookings);
-        updateRoomsWithBookings(transformedRooms, transformedBookings);
+        const updatedRooms = updateRoomsWithBookings(transformedRooms, transformedBookings);
+        console.log('Updated rooms:', updatedRooms);
+        setRooms(updatedRooms);
         setLoading(false);
       } catch (error) {
         console.error('Error loading data:', error);
