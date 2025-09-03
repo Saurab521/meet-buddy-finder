@@ -279,7 +279,7 @@ export const useMeetingRooms = () => {
 
         setBookings(transformedBookings);
         const updatedRooms = updateRoomsWithBookings(transformedRooms, transformedBookings);
-        console.log('Updated rooms:', updatedRooms);
+        console.log('Updated rooms:', updatedRooms.length, 'rooms');
         setRooms(updatedRooms);
         setLoading(false);
       } catch (error) {
