@@ -292,7 +292,7 @@ export const useMeetingRooms = () => {
 
     // Set up real-time subscription for bookings
     const bookingsChannel = supabase
-      .channel('schema-db-changes')
+      .channel('room-bookings-realtime')
       .on(
         'postgres_changes',
         {
@@ -300,7 +300,9 @@ export const useMeetingRooms = () => {
           schema: 'public',
           table: 'bookings'
         },
-        async () => {
+        async (payload) => {
+          console.log('Real-time booking change:', payload);
+          
           // Reload bookings when any booking changes
           const today = new Date().toISOString().split('T')[0];
           const { data: bookingsData } = await supabase
@@ -325,20 +327,24 @@ export const useMeetingRooms = () => {
               isActive: booking.is_active
             }));
 
+            console.log('Real-time updated bookings:', transformedBookings);
             setBookings(transformedBookings);
             
-            // Update rooms with new bookings
+            // Update rooms with new bookings immediately
             setRooms(currentRooms => {
-              return updateRoomsWithBookings([...currentRooms], transformedBookings);
+              const updatedRooms = updateRoomsWithBookings([...currentRooms], transformedBookings);
+              console.log('Real-time updated rooms:', updatedRooms.filter(r => !r.isAvailable).length, 'occupied rooms');
+              return updatedRooms;
             });
           }
         }
       )
       .subscribe();
 
-    // Auto-refresh booking status every 30 seconds
+    // Auto-refresh booking status every 30 seconds to handle time-based changes
     const interval = setInterval(() => {
       setRooms(currentRooms => {
+        console.log('Auto-refresh: updating room status based on current time');
         return updateRoomsWithBookings([...currentRooms], bookings);
       });
     }, 30000);
@@ -354,28 +360,45 @@ export const useMeetingRooms = () => {
     
     return roomsList.map(room => {
       const todayBookings = bookingsList.filter((b: Booking) => 
-        b.roomId === room.id && b.date === today
+        b.roomId === room.id && b.date === today && b.isActive
       );
       
       // Sort bookings by start time
       todayBookings.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
       
       const now = new Date();
-      const currentBooking = todayBookings.find((b: Booking) => 
-        b.startTime <= now && b.endTime > now && b.isActive
-      );
       
-      const nextBooking = todayBookings.find((b: Booking) => 
-        b.startTime > now
-      );
+      // Current booking: started but not ended, with 30-minute buffer after end time
+      const currentBooking = todayBookings.find((b: Booking) => {
+        const startTime = new Date(b.startTime);
+        const endTime = new Date(b.endTime);
+        const endTimeWithBuffer = new Date(endTime.getTime() + 30 * 60 * 1000); // 30 minutes buffer
+        
+        return startTime <= now && endTimeWithBuffer > now && b.isActive;
+      });
       
-      return {
+      // Next booking: upcoming booking after current time
+      const nextBooking = todayBookings.find((b: Booking) => {
+        const startTime = new Date(b.startTime);
+        return startTime > now && b.isActive;
+      });
+      
+      const updatedRoom = {
         ...room,
         isAvailable: !currentBooking,
         currentBooking,
         nextBooking,
         todayBookings
       };
+      
+      console.log(`Room ${room.name}:`, {
+        isAvailable: updatedRoom.isAvailable,
+        hasCurrentBooking: !!currentBooking,
+        hasNextBooking: !!nextBooking,
+        totalBookings: todayBookings.length
+      });
+      
+      return updatedRoom;
     });
   };
 
@@ -444,6 +467,16 @@ export const useMeetingRooms = () => {
         date: newBookingData.date,
         isActive: newBookingData.is_active
       };
+
+      console.log('New booking created:', transformedBooking);
+      
+      // Update local state immediately for instant UI feedback
+      setBookings(currentBookings => [...currentBookings, transformedBooking]);
+      setRooms(currentRooms => {
+        const updatedRooms = updateRoomsWithBookings([...currentRooms], [...bookings, transformedBooking]);
+        console.log('Immediately updated rooms after booking');
+        return updatedRooms;
+      });
 
       return transformedBooking;
     } catch (error) {
