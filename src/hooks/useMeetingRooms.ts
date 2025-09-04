@@ -370,16 +370,31 @@ export const useMeetingRooms = () => {
       
       // Current booking: started but not ended, with 30-minute buffer after end time
       const currentBooking = todayBookings.find((b: Booking) => {
-        const startTime = new Date(b.startTime);
-        const endTime = new Date(b.endTime);
+        // Ensure we have Date objects
+        const startTime = b.startTime instanceof Date ? b.startTime : new Date(b.startTime);
+        const endTime = b.endTime instanceof Date ? b.endTime : new Date(b.endTime);
         const endTimeWithBuffer = new Date(endTime.getTime() + 30 * 60 * 1000); // 30 minutes buffer
         
-        return startTime <= now && endTimeWithBuffer > now && b.isActive;
+        const isCurrentlyActive = startTime <= now && endTimeWithBuffer > now && b.isActive;
+        
+        if (isCurrentlyActive) {
+          console.log(`Current booking found for ${room.name}:`, {
+            title: b.title,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
+            endTimeWithBuffer: endTimeWithBuffer.toISOString(),
+            now: now.toISOString(),
+            isActive: b.isActive
+          });
+        }
+        
+        return isCurrentlyActive;
       });
       
       // Next booking: upcoming booking after current time
       const nextBooking = todayBookings.find((b: Booking) => {
-        const startTime = new Date(b.startTime);
+        // Ensure we have Date objects
+        const startTime = b.startTime instanceof Date ? b.startTime : new Date(b.startTime);
         return startTime > now && b.isActive;
       });
       
