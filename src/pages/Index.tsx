@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import baazBikeLogo from "@/assets/baaz-bike-logo.png";
 
 const Index = () => {
   const { rooms, bookRoom } = useMeetingRooms();
@@ -83,29 +84,31 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-gradient-primary text-white shadow-elevated">
-        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          {/* Company Name and Logo */}
-          <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-4 mb-4">
-              {/* Logo placeholder - users can replace with their company logo */}
-              <div className="w-16 h-16 bg-white/20 rounded-lg flex items-center justify-center">
-                <Building2 className="h-10 w-10 text-white" />
+        <div className="container mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Company Logo and Name */}
+            <div className="flex items-center gap-3">
+              <img 
+                src={baazBikeLogo} 
+                alt="Baaz Bike Logo" 
+                className="w-12 h-12 rounded-lg bg-white/10 p-1"
+              />
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                  Baaz Bike
+                </h1>
+                <p className="text-sm text-white/80">Meeting Room Booking</p>
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
-                Baaz Bike
-              </h1>
             </div>
-            <p className="text-lg sm:text-xl text-white/80">Book your meeting space</p>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+            
+            {/* Login/User Menu */}
             <div className="flex items-center gap-3">
               {user ? (
                 <UserMenu />
               ) : (
                 <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
                   <DialogTrigger asChild>
-                    <Button variant="secondary" size="sm">
+                    <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20">
                       <LogIn className="h-4 w-4 mr-2" />
                       Login
                     </Button>
@@ -118,13 +121,14 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm sm:text-base">
+          {/* Date and Time */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm border-t border-white/10 pt-4 mt-4">
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="text-center">{format(new Date(), 'EEEE, MMMM do, yyyy')}</span>
+              <Calendar className="h-4 w-4" />
+              <span>{format(new Date(), 'EEEE, MMMM do, yyyy')}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Clock className="h-4 w-4" />
               <span>{format(new Date(), 'HH:mm')}</span>
             </div>
           </div>
