@@ -300,16 +300,21 @@ export const useMeetingRooms = () => {
           schema: 'public',
           table: 'bookings'
         },
-        async (payload) => {
+          async (payload) => {
           console.log('Real-time booking change:', payload);
           
-          // Reload bookings when any booking changes
+          // Immediately reload bookings when any booking changes
           const today = new Date().toISOString().split('T')[0];
-          const { data: bookingsData } = await supabase
+          const { data: bookingsData, error } = await supabase
             .from('bookings')
             .select('*')
             .eq('date', today)
             .eq('is_active', true);
+
+          if (error) {
+            console.error('Error fetching real-time bookings:', error);
+            return;
+          }
 
           if (bookingsData) {
             const transformedBookings: Booking[] = bookingsData.map(booking => ({
@@ -327,10 +332,10 @@ export const useMeetingRooms = () => {
               isActive: booking.is_active
             }));
 
-            console.log('Real-time updated bookings:', transformedBookings);
+            console.log('Real-time updated bookings:', transformedBookings.length, 'active bookings');
             setBookings(transformedBookings);
             
-            // Update rooms with new bookings immediately
+            // Update rooms with new bookings immediately with force refresh
             setRooms(currentRooms => {
               const updatedRooms = updateRoomsWithBookings([...currentRooms], transformedBookings);
               console.log('Real-time updated rooms:', updatedRooms.filter(r => !r.isAvailable).length, 'occupied rooms');
@@ -341,13 +346,13 @@ export const useMeetingRooms = () => {
       )
       .subscribe();
 
-    // Auto-refresh booking status every 30 seconds to handle time-based changes
+    // Auto-refresh booking status every 10 seconds to handle time-based changes
     const interval = setInterval(() => {
       setRooms(currentRooms => {
         console.log('Auto-refresh: updating room status based on current time');
         return updateRoomsWithBookings([...currentRooms], bookings);
       });
-    }, 30000);
+    }, 10000);
 
     return () => {
       supabase.removeChannel(bookingsChannel);
