@@ -33,22 +33,30 @@ const Index = () => {
   const occupiedRooms = filteredRooms.filter(room => !room.isAvailable);
 
   const handleBookRoom = (roomId: string) => {
+    console.log('Book room clicked:', roomId);
+    console.log('User status:', { user: !!user, loading });
+    
     if (!user) {
+      console.log('User not logged in, showing login dialog');
       setShowLoginDialog(true);
       return;
     }
+    console.log('User logged in, opening booking form');
     setSelectedRoomId(roomId);
   };
 
   const handleBookingSubmit = async (booking: any) => {
+    console.log('Booking submission started:', booking);
     try {
       await bookRoom(booking);
+      console.log('Room booked successfully');
       toast({
         title: "Room Booked Successfully!",
         description: `${booking.title} has been scheduled.`,
       });
       setSelectedRoomId(null);
     } catch (error) {
+      console.error('Booking failed:', error);
       toast({
         title: "Booking Failed",
         description: error instanceof Error ? error.message : "Please try again.",
