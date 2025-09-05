@@ -84,8 +84,57 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-black text-white shadow-elevated">
-        <div className="container mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-2 sm:px-6 py-3">
+          {/* Mobile Layout */}
+          <div className="block sm:hidden">
+            {/* Top Row: Logo centered with login on right */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-16"></div> {/* Spacer for centering */}
+              <div className="flex items-center gap-2">
+                <img 
+                  src={baazBikeLogo} 
+                  alt="Baaz Bike Logo" 
+                  className="w-8 h-8 rounded bg-white/10 p-1"
+                />
+                <div className="text-center">
+                  <h1 className="text-lg font-bold text-white">Baaz Bike</h1>
+                  <p className="text-xs text-white/80">Meeting Room Booking</p>
+                </div>
+              </div>
+              <div className="flex items-center">
+                {user ? (
+                  <UserMenu />
+                ) : (
+                  <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+                    <DialogTrigger asChild>
+                      <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs px-2 py-1">
+                        <LogIn className="h-3 w-3 mr-1" />
+                        Login
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <LoginForm onClose={() => setShowLoginDialog(false)} />
+                    </DialogContent>
+                  </Dialog>
+                )}
+              </div>
+            </div>
+            
+            {/* Bottom Row: Date and Time centered */}
+            <div className="flex items-center justify-center gap-4 text-xs border-t border-white/10 pt-2">
+              <div className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                <span>{format(new Date(), 'MMM do, yyyy')}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                <span>{format(new Date(), 'HH:mm')}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden sm:flex items-center justify-between">
             {/* Date and Time - Left */}
             <div className="flex flex-col gap-1 text-sm">
               <div className="flex items-center gap-2">
