@@ -225,6 +225,8 @@ export const useMeetingRooms = () => {
 
   // Load initial data and set up real-time subscriptions
   useEffect(() => {
+    let latestBookings: Booking[] = [];
+
     const loadData = async () => {
       try {
         // Load meeting rooms
@@ -277,6 +279,7 @@ export const useMeetingRooms = () => {
 
         console.log('Transformed bookings:', transformedBookings);
 
+        latestBookings = transformedBookings;
         setBookings(transformedBookings);
         const updatedRooms = updateRoomsWithBookings(transformedRooms, transformedBookings);
         console.log('Updated rooms:', updatedRooms.length, 'rooms');
@@ -333,9 +336,10 @@ export const useMeetingRooms = () => {
             }));
 
             console.log('Real-time updated bookings:', transformedBookings.length, 'active bookings');
+            latestBookings = transformedBookings;
             setBookings(transformedBookings);
             
-            // Update rooms with new bookings immediately with force refresh
+            // Update rooms with new bookings immediately
             setRooms(currentRooms => {
               const updatedRooms = updateRoomsWithBookings([...currentRooms], transformedBookings);
               console.log('Real-time updated rooms:', updatedRooms.filter(r => !r.isAvailable).length, 'occupied rooms');
@@ -346,13 +350,13 @@ export const useMeetingRooms = () => {
       )
       .subscribe();
 
-    // Auto-refresh booking status every 10 seconds to handle time-based changes
+    // Auto-refresh room status every 30 seconds using latest bookings data
     const interval = setInterval(() => {
+      console.log('Auto-refresh: updating room status based on current time');
       setRooms(currentRooms => {
-        console.log('Auto-refresh: updating room status based on current time');
-        return updateRoomsWithBookings([...currentRooms], bookings);
+        return updateRoomsWithBookings([...currentRooms], latestBookings);
       });
-    }, 10000);
+    }, 30000);
 
     return () => {
       supabase.removeChannel(bookingsChannel);
