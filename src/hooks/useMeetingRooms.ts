@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MeetingRoom, Booking } from '@/types/meeting';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -222,6 +222,7 @@ export const useMeetingRooms = () => {
   const [rooms, setRooms] = useState<MeetingRoom[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const latestBookingsRef = useRef<Booking[]>([]);
 
   // Load initial data and set up real-time subscriptions
   useEffect(() => {
@@ -280,6 +281,7 @@ export const useMeetingRooms = () => {
         console.log('Transformed bookings:', transformedBookings);
 
         latestBookings = transformedBookings;
+        latestBookingsRef.current = transformedBookings;
         setBookings(transformedBookings);
         const updatedRooms = updateRoomsWithBookings(transformedRooms, transformedBookings);
         console.log('Updated rooms:', updatedRooms.length, 'rooms');
@@ -337,6 +339,7 @@ export const useMeetingRooms = () => {
 
             console.log('Real-time updated bookings:', transformedBookings.length, 'active bookings');
             latestBookings = transformedBookings;
+            latestBookingsRef.current = transformedBookings;
             setBookings(transformedBookings);
             
             // Update rooms with new bookings immediately
@@ -354,7 +357,7 @@ export const useMeetingRooms = () => {
     const interval = setInterval(() => {
       console.log('Auto-refresh: updating room status based on current time');
       setRooms(currentRooms => {
-        return updateRoomsWithBookings([...currentRooms], latestBookings);
+        return updateRoomsWithBookings([...currentRooms], latestBookingsRef.current);
       });
     }, 30000);
 
@@ -493,9 +496,11 @@ export const useMeetingRooms = () => {
       console.log('New booking created:', transformedBooking);
       
       // Update local state immediately for instant UI feedback
-      setBookings(currentBookings => [...currentBookings, transformedBooking]);
+      const newBookings = [...latestBookingsRef.current, transformedBooking];
+      latestBookingsRef.current = newBookings;
+      setBookings(newBookings);
       setRooms(currentRooms => {
-        const updatedRooms = updateRoomsWithBookings([...currentRooms], [...bookings, transformedBooking]);
+        const updatedRooms = updateRoomsWithBookings([...currentRooms], newBookings);
         console.log('Immediately updated rooms after booking');
         return updatedRooms;
       });
