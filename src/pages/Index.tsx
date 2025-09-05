@@ -83,10 +83,22 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-gradient-primary text-white shadow-elevated">
+      <header className="bg-black text-white shadow-elevated">
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
-            {/* Company Logo and Name */}
+            {/* Date and Time - Left */}
+            <div className="flex flex-col gap-1 text-sm">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <span>{format(new Date(), 'EEEE, MMMM do, yyyy')}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                <span>{format(new Date(), 'HH:mm')}</span>
+              </div>
+            </div>
+            
+            {/* Company Logo and Name - Center */}
             <div className="flex items-center gap-3">
               <img 
                 src={baazBikeLogo} 
@@ -101,7 +113,7 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Login/User Menu */}
+            {/* Login/User Menu - Right */}
             <div className="flex items-center gap-3">
               {user ? (
                 <UserMenu />
@@ -118,18 +130,6 @@ const Index = () => {
                   </DialogContent>
                 </Dialog>
               )}
-            </div>
-          </div>
-          
-          {/* Date and Time */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm border-t border-white/10 pt-4 mt-4">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>{format(new Date(), 'EEEE, MMMM do, yyyy')}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>{format(new Date(), 'HH:mm')}</span>
             </div>
           </div>
         </div>
