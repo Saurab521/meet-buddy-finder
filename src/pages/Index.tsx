@@ -87,18 +87,17 @@ const Index = () => {
         <div className="container mx-auto px-2 sm:px-6 py-3">
           {/* Mobile Layout */}
           <div className="block sm:hidden">
-            {/* Top Row: Logo centered with login on right */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-16"></div> {/* Spacer for centering */}
+            {/* Top Row: Company name and login button */}
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <img 
                   src={baazBikeLogo} 
                   alt="Baaz Bike Logo" 
-                  className="w-8 h-8 rounded bg-white/10 p-1"
+                  className="w-6 h-6 rounded bg-white/10 p-1"
                 />
-                <div className="text-center">
-                  <h1 className="text-lg font-bold text-white">Baaz Bike</h1>
-                  <p className="text-xs text-white/80">Meeting Room Booking</p>
+                <div>
+                  <h1 className="text-base font-bold text-white">Baaz Bike</h1>
+                  <p className="text-[10px] text-white/80 leading-none">Meeting Room Booking</p>
                 </div>
               </div>
               <div className="flex items-center">
@@ -107,8 +106,8 @@ const Index = () => {
                 ) : (
                   <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
                     <DialogTrigger asChild>
-                      <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs px-2 py-1">
-                        <LogIn className="h-3 w-3 mr-1" />
+                      <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-[10px] px-2 py-1 h-6">
+                        <LogIn className="h-2 w-2 mr-1" />
                         Login
                       </Button>
                     </DialogTrigger>
@@ -120,14 +119,14 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Bottom Row: Date and Time centered */}
-            <div className="flex items-center justify-center gap-4 text-xs border-t border-white/10 pt-2">
+            {/* Bottom Row: Date and Time on left */}
+            <div className="flex items-center gap-3 text-[10px] text-white/80">
               <div className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
+                <Calendar className="h-2 w-2" />
                 <span>{format(new Date(), 'MMM do, yyyy')}</span>
               </div>
               <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
+                <Clock className="h-2 w-2" />
                 <span>{format(new Date(), 'HH:mm')}</span>
               </div>
             </div>
